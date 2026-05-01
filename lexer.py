@@ -22,6 +22,7 @@ TOKEN_TYPES = [
     ('RBRACKET',  r'\]'),
     ('SEMICOLON', r';'),
     ('COMMA',     r','),
+    ('ASSIGN',    r'='),
     ('SKIP',      r'[ \t\n\r]+'),
 ]
 
