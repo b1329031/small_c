@@ -1,11 +1,25 @@
 # parser.py
-# 語法分析器：把 token 串變成可以執行的樹狀結構（AST）
 
 class NumberNode:
     def __init__(self, value):
         self.value = int(value)
 
 class BinOpNode:
+    def __init__(self, left, op, right):
+        self.left = left
+        self.op = op
+        self.right = right
+
+class VarNode:
+    def __init__(self, name):
+        self.name = name
+
+class AssignNode:
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+
+class CompareNode:
     def __init__(self, left, op, right):
         self.left = left
         self.op = op
@@ -31,8 +45,16 @@ class Parser:
     def parse(self):
         return self.expr()
 
-    # 加減法（低優先級）
     def expr(self):
+        left = self.add_expr()
+        while self.current() and self.current().type in ('EQ','NEQ','LT','GT','LEQ','GEQ'):
+            op = self.current().value
+            self.pos += 1
+            right = self.add_expr()
+            left = CompareNode(left, op, right)
+        return left
+
+    def add_expr(self):
         left = self.term()
         while self.current() and self.current().type in ('PLUS', 'MINUS'):
             op = self.current().value
@@ -41,7 +63,6 @@ class Parser:
             left = BinOpNode(left, op, right)
         return left
 
-    # 乘除法（高優先級）
     def term(self):
         left = self.factor()
         while self.current() and self.current().type in ('STAR', 'SLASH'):
@@ -51,12 +72,14 @@ class Parser:
             left = BinOpNode(left, op, right)
         return left
 
-    # 數字或括號
     def factor(self):
         token = self.current()
         if token.type == 'NUMBER':
             self.pos += 1
             return NumberNode(token.value)
+        if token.type == 'ID':
+            self.pos += 1
+            return VarNode(token.value)
         if token.type == 'LPAREN':
             self.pos += 1
             node = self.expr()
