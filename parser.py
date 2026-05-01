@@ -31,6 +31,12 @@ class IfNode:
         self.then_body = then_body    # list of statements
         self.else_body = else_body    # list of statements 或 None
 
+class WhileNode:
+    def __init__(self, condition, body):
+        self.condition = condition
+        self.body = body
+
+
 
 class Parser:
     def __init__(self, tokens):
@@ -121,6 +127,23 @@ class Parser:
             self.eat('RBRACE')
         
         return IfNode(condition, then_body, else_body)
+    
+    def parse_while(self):
+        self.eat('LPAREN')
+        condition = self.expr()
+        self.eat('RPAREN')
+        
+        self.eat('LBRACE')
+        body = []
+        while self.current() and self.current().type != 'RBRACE':
+            stmt = self.collect_statement()
+            if stmt:
+                body.append(stmt)
+        self.eat('RBRACE')
+        
+        return WhileNode(condition, body)
+
+        
 
     def collect_statement(self):
         tokens = []

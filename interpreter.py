@@ -52,6 +52,13 @@ def run_statement(stmt, builtin_funcs):
             val = 0
         sym.declare(var_name, var_type, val)
         return
+    
+    # 變數指定 x = x + 1;
+    if len(tokens) >= 3 and tokens[1].type == 'ASSIGN':
+        var_name = tokens[0].value
+        val = evaluate(Parser(tokens[2:-1]).parse())
+        sym.set(var_name, val)
+        return
 
     # printf
     if tokens[0].value == 'printf':

@@ -2,7 +2,7 @@
 import builtin_funcs
 from interpreter import run_statement, evaluate, sym
 from lexer import tokenize
-from parser import Parser, IfNode
+from parser import Parser, IfNode, WhileNode
 
 def run_if(node):
     condition = evaluate(node.condition)
@@ -13,22 +13,28 @@ def run_if(node):
         for stmt in node.else_body:
             run_statement(stmt, builtin_funcs)
 
+def run_while(node):
+    while evaluate(node.condition):
+        for stmt in node.body:
+            run_statement(stmt, builtin_funcs)
+
 def run(code):
-    from lexer import tokenize
-    from parser import Parser
     tokens = tokenize(code)
     p = Parser(tokens)
     
     while p.current():
         token = p.current()
         
-        # if 語句
         if token.type == 'ID' and token.value == 'if':
             p.pos += 1
             node = p.parse_if()
             run_if(node)
         
-        # 一般語句
+        elif token.type == 'ID' and token.value == 'while':
+            p.pos += 1
+            node = p.parse_while()
+            run_while(node)
+        
         else:
             stmt = p.collect_statement()
             if stmt:
@@ -36,10 +42,11 @@ def run(code):
 
 # 測試
 run('''
-int score = 85;
-if (score >= 90) {
-printf("Grade: A\\n");
-} else {
-printf("Grade: B\\n");
+int i = 1;
+int sum = 0;
+while (i <= 10) {
+sum = sum + i;
+i = i + 1;
 }
+printf("1+2+...+10 = %d\\n", sum);
 ''')
