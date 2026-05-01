@@ -36,6 +36,13 @@ class WhileNode:
         self.condition = condition
         self.body = body
 
+class ForNode:
+    def __init__(self, init, condition, update, body):
+        self.init = init          # int i = 0;
+        self.condition = condition # i < 10
+        self.update = update      # i = i + 1
+        self.body = body          # { ... }
+
 
 
 class Parser:
@@ -142,6 +149,30 @@ class Parser:
         self.eat('RBRACE')
         
         return WhileNode(condition, body)
+    
+    def parse_for(self):
+        self.eat('LPAREN')
+        init = self.collect_statement()   # int i = 0;
+        condition = self.expr()           # i < 10
+        self.eat('SEMICOLON')
+        
+        # 手動收集 update（直到遇到 RPAREN）
+        update_tokens = []
+        while self.current() and self.current().type != 'RPAREN':
+            update_tokens.append(self.current())
+            self.pos += 1
+        update = ' '.join(t.value for t in update_tokens)
+        self.eat('RPAREN')
+        
+        self.eat('LBRACE')
+        body = []
+        while self.current() and self.current().type != 'RBRACE':
+            stmt = self.collect_statement()
+            if stmt:
+                body.append(stmt)
+        self.eat('RBRACE')
+        
+        return ForNode(init, condition, update, body)
 
         
 
