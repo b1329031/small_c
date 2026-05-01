@@ -25,6 +25,13 @@ class CompareNode:
         self.op = op
         self.right = right
 
+class IfNode:
+    def __init__(self, condition, then_body, else_body=None):
+        self.condition = condition
+        self.then_body = then_body    # list of statements
+        self.else_body = else_body    # list of statements 或 None
+
+
 class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
@@ -86,3 +93,42 @@ class Parser:
             self.eat('RPAREN')
             return node
         raise SyntaxError(f'無法解析: {token}')
+    
+    def parse_if(self):
+        self.eat('LPAREN')
+        condition = self.expr()
+        self.eat('RPAREN')
+        
+    # 解析 { ... }
+        self.eat('LBRACE')
+        then_body = []
+        while self.current() and self.current().type != 'RBRACE':
+            stmt = self.collect_statement()
+            if stmt:
+                then_body.append(stmt)
+        self.eat('RBRACE')
+        
+        # 看有沒有 else
+        else_body = None
+        if self.current() and self.current().value == 'else':
+            self.pos += 1
+            self.eat('LBRACE')
+            else_body = []
+            while self.current() and self.current().type != 'RBRACE':
+                stmt = self.collect_statement()
+                if stmt:
+                    else_body.append(stmt)
+            self.eat('RBRACE')
+        
+        return IfNode(condition, then_body, else_body)
+
+    def collect_statement(self):
+        tokens = []
+        while self.current() and self.current().type not in ('RBRACE',):
+            if self.current().type == 'SEMICOLON':
+                tokens.append(self.current())
+                self.pos += 1
+                break
+            tokens.append(self.current())
+            self.pos += 1
+        return ' '.join(t.value for t in tokens)

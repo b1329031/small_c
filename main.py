@@ -1,36 +1,45 @@
 # main.py
+import builtin_funcs
+from interpreter import run_statement, evaluate, sym
 from lexer import tokenize
-from parser import Parser
-from interpreter import evaluate, sym
-from builtin_funcs import run_printf
+from parser import Parser, IfNode
 
+def run_if(node):
+    condition = evaluate(node.condition)
+    if condition:
+        for stmt in node.then_body:
+            run_statement(stmt, builtin_funcs)
+    elif node.else_body:
+        for stmt in node.else_body:
+            run_statement(stmt, builtin_funcs)
 
-def run_statement(line):
-    line = line.strip()
-    if not line:
-        return
+def run(code):
+    from lexer import tokenize
+    from parser import Parser
+    tokens = tokenize(code)
+    p = Parser(tokens)
     
-    tokens = tokenize(line)
-    if not tokens:
-        return
-
-    # 變數宣告 int x = 10;
-    if tokens[0].value in ('int', 'char'):
-        var_type = tokens[0].value
-        var_name = tokens[1].value
-        if len(tokens) > 3 and tokens[2].type == 'ASSIGN':
-            val = evaluate(Parser(tokens[3:-1]).parse())
+    while p.current():
+        token = p.current()
+        
+        # if 語句
+        if token.type == 'ID' and token.value == 'if':
+            p.pos += 1
+            node = p.parse_if()
+            run_if(node)
+        
+        # 一般語句
         else:
-            val = 0
-        sym.declare(var_name, var_type, val)
-        return
-
-    # printf
-    if tokens[0].value == 'printf':
-        run_printf(tokens, 1)
-        return
+            stmt = p.collect_statement()
+            if stmt:
+                run_statement(stmt, builtin_funcs)
 
 # 測試
-run_statement('int x = 10;')
-run_statement('int y = 20;')
-run_statement('printf("%d\\n", x + y);')
+run('''
+int score = 85;
+if (score >= 90) {
+printf("Grade: A\\n");
+} else {
+printf("Grade: B\\n");
+}
+''')

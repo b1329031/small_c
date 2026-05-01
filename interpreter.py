@@ -1,5 +1,5 @@
 # interpreter.py
-from parser import NumberNode, BinOpNode, VarNode, AssignNode, CompareNode
+from parser import NumberNode, BinOpNode, VarNode, AssignNode, CompareNode, IfNode
 from symtable import SymbolTable
 
 sym = SymbolTable()
@@ -29,3 +29,31 @@ def evaluate(node):
         if node.op == '!=': return 1 if left != right else 0
         if node.op == '>=': return 1 if left >= right else 0
         if node.op == '<=': return 1 if left <= right else 0
+
+def run_statement(stmt, builtin_funcs):
+    from lexer import tokenize
+    from parser import Parser
+
+    line = stmt.strip()
+    if not line:
+        return
+
+    tokens = tokenize(line)
+    if not tokens:
+        return
+
+    # 變數宣告
+    if tokens[0].value in ('int', 'char'):
+        var_type = tokens[0].value
+        var_name = tokens[1].value
+        if len(tokens) > 3 and tokens[2].type == 'ASSIGN':
+            val = evaluate(Parser(tokens[3:-1]).parse())
+        else:
+            val = 0
+        sym.declare(var_name, var_type, val)
+        return
+
+    # printf
+    if tokens[0].value == 'printf':
+        builtin_funcs.run_printf(tokens, 1)
+        return
