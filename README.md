@@ -115,3 +115,4 @@ tests/           10 個測試程式及對應的預期輸出檔
 | `test08_pointers.sc` | 指標傳遞（`swap`）、以指標參數操作陣列 |
 | `test09_error_divzero.sc` | 執行期錯誤：除以零 |
 | `test10_error_bounds.sc` | 執行期錯誤：陣列索引超出範圍 |
+| `test11_error_syntax.sc` | 語法錯誤：缺少分號（`expected SEMICOLON`） |
