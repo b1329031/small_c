@@ -27,6 +27,10 @@ class BinOpNode:
 class UnaryNode:
     def __init__(self, op, operand):  self.op = op;  self.operand = operand
 
+class PostfixIncNode:
+    """target++ or target--  — evaluates to old value, then mutates target"""
+    def __init__(self, target, op): self.target = target; self.op = op  # op: '+' or '-'
+
 class AssignNode:
     """target is VarNode | ArrayIndexNode | DerefNode"""
     def __init__(self, target, op, value): self.target = target; self.op = op; self.value = value

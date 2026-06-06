@@ -392,10 +392,10 @@ class Parser:
                 node = FuncCallNode(name, args)
             elif t and t.type == 'INC':
                 self.advance()
-                node = AssignNode(node, '=', BinOpNode(node, '+', NumberNode(1)))
+                node = PostfixIncNode(node, '+')
             elif t and t.type == 'DEC':
                 self.advance()
-                node = AssignNode(node, '=', BinOpNode(node, '-', NumberNode(1)))
+                node = PostfixIncNode(node, '-')
             else:
                 break
         return node

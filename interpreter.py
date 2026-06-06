@@ -283,6 +283,12 @@ class Interpreter:
         if isinstance(node, AddressOfNode):
             return self._lvalue_addr(node.expr, scope)
 
+        if isinstance(node, PostfixIncNode):
+            addr = self._lvalue_addr(node.target, scope)
+            old = self.mem.read(addr)
+            self.mem.write(addr, old + (1 if node.op == '+' else -1))
+            return old
+
         if isinstance(node, AssignNode):
             return self._exec_assign(node, scope)
 
