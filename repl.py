@@ -16,7 +16,7 @@ WELCOME = """\
 ========================================
   Small-C Interactive Interpreter v1.0
   System Software Final Project, Spring 2026
-  Author: b1329031
+  Author: b1329031, b1329033
 ========================================
 Type `HELP` for a list of commands."""
 
@@ -190,7 +190,7 @@ class REPL:
         if cmd == 'ABOUT':
             print("  Small-C Interactive Interpreter v1.0")
             print("  Course: System Software (Spring 2026)")
-            print("  Author: b1329031")
+            print("  Author: b1329031, b1329033")
             return True
 
         if cmd == 'CLEAR':
